@@ -422,6 +422,10 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
         adapter?.notifyDataSetChanged()
     }
 
+    fun recreate() {
+        adapter = itemsAdapter
+    }
+
     enum class ThumbShape {
         SQUARE, ROUND_SQUARE, CIRCLE, TEARDROP, SQUIRCLE
     }
