@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import bzh.zelyon.lib.R
-import bzh.zelyon.lib.extension.*
+import bzh.zelyon.lib.extension.back
+import bzh.zelyon.lib.extension.fullBack
+import bzh.zelyon.lib.extension.showFragment
 import bzh.zelyon.lib.ui.view.activity.AbsActivity
 
 abstract class AbsFragment: Fragment() {

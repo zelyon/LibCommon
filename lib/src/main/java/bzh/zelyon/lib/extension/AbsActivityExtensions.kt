@@ -16,37 +16,6 @@ import java.io.File
 
 fun AbsActivity.getCurrentFragment() = supportFragmentManager.findFragmentById(getFragmentContainerId()) as? AbsFragment
 
-fun AbsActivity.goStore(applicationId: String) {
-    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$applicationId")))
-}
-
-fun AbsActivity.openCamera() {
-    ifPermissions(Manifest.permission.CAMERA) {
-        if (it) {
-            startActivityForResult(Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, File(externalCacheDir, System.currentTimeMillis().toString().plus(".png")))), 0)
-        }
-    }
-}
-
-fun AbsActivity.openGallery(multiple: Boolean = false) {
-    ifPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
-        if (it) {
-            startActivityForResult(Intent(Intent.ACTION_GET_CONTENT).setType("image/*").putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple), 0)
-        }
-    }
-}
-
-fun AbsActivity.showSnackbar(
-    message: String,
-    duration: Int = Snackbar.LENGTH_LONG,
-    actionMessage: String? = null,
-    actionResult:() -> Unit = {}) =
-    Snackbar.make(findViewById(android.R.id.content), message, duration).apply {
-        setAction(actionMessage) {
-            actionResult.invoke()
-        }
-    }.show()
-
 fun AbsActivity.showFragment(fragment: Fragment, addToBackStack: Boolean = true, transitionView: View? = null) {
     when (fragment) {
         is AbsFragment -> {
@@ -72,5 +41,39 @@ fun AbsActivity.fullBack() {
 fun AbsActivity.back(nb: Int = 1) {
     for (i in 0..nb) {
         supportFragmentManager.popBackStack()
+    }
+}
+
+fun AbsActivity.showSnackbar(
+    message: String,
+    view: View = findViewById(android.R.id.content),
+    duration: Int = Snackbar.LENGTH_LONG,
+    actionMessage: String? = null,
+    actionResult:() -> Unit = {}) =
+    Snackbar.make(view, message, duration).apply {
+        actionMessage?.let {
+            setAction(actionMessage) {
+                actionResult.invoke()
+            }
+        }
+    }.show()
+
+fun AbsActivity.goStore(applicationId: String) {
+    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$applicationId")))
+}
+
+fun AbsActivity.openCamera() {
+    ifPermissions(Manifest.permission.CAMERA) {
+        if (it) {
+            startActivityForResult(Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, File(externalCacheDir, System.currentTimeMillis().toString().plus(".png")))), 0)
+        }
+    }
+}
+
+fun AbsActivity.openGallery(multiple: Boolean = false) {
+    ifPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
+        if (it) {
+            startActivityForResult(Intent(Intent.ACTION_GET_CONTENT).setType("image/*").putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple), 0)
+        }
     }
 }

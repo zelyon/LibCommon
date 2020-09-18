@@ -1,11 +1,11 @@
 package bzh.zelyon.lib.extension
 
-import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -44,7 +44,7 @@ fun Context.vibrate() {
 fun Context.drawableResToDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int? = null): Drawable {
     val result = ContextCompat.getDrawable(this, drawableRes) ?: ColorDrawable()
     colorRes?.let {
-        result.mutate().setColorFilter(colorResToColorInt(colorRes), PorterDuff.Mode.SRC_IN)
+        result.mutate().colorFilter = PorterDuffColorFilter(colorResToColorInt(colorRes), PorterDuff.Mode.SRC_IN)
     }
     return result
 }

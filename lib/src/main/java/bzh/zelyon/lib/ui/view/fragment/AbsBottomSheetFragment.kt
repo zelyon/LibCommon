@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
-import bzh.zelyon.lib.extension.*
+import bzh.zelyon.lib.extension.showFragment
 import bzh.zelyon.lib.ui.view.activity.AbsActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 

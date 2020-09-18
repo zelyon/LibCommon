@@ -3,24 +3,11 @@ package bzh.zelyon.lib.util.api
 import retrofit2.Call
 import retrofit2.Response
 
-class CallError<T>(call: Call<T>, response: Response<T>? = null, throwable: Throwable? = null) {
+class CallError<T>(private val call: Call<T>, private val response: Response<T>? = null, private val throwable: Throwable? = null) {
 
-    var httpCode = 0
-    var message = ""
-    var method = ""
-    var url = ""
-
-    init {
-        method = call.request().method
-        url = call.request().url.toUrl().toString()
-
-        response?.let {
-            httpCode = response.code()
-            message = response.message()
-            response.errorBody()?.string()
-        }
-        throwable?.let {
-            message = throwable.localizedMessage ?: throwable.message.orEmpty()
-        }
-    }
+    val httpCode get() = response?.code() ?: 0
+    val method get() = call.request().method
+    val url get() = call.request().url.toUrl().toString()
+    val errorBody get() = response?.errorBody().toString()
+    val message get() = response?.message() ?: throwable?.localizedMessage ?: throwable?.message.orEmpty()
 }

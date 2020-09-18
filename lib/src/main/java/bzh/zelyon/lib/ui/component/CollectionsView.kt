@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import bzh.zelyon.lib.R
+import bzh.zelyon.lib.extension.colorResToColorInt
 import bzh.zelyon.lib.extension.dpToPx
 import bzh.zelyon.lib.extension.getResIdFromAndroidAttr
 import java.util.*
@@ -27,37 +28,37 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
     var items: MutableList<*> = mutableListOf<Any>()
         set(value) {
             field = value
-            notifyDataSetChanged()
+            refresh()
         }
 
     var helper: Helper? = null
         set(value) {
             field = value
-            notifyDataSetChanged()
+            recreate()
         }
 
     var idLayoutItem = R.layout.item_empty
         set(value) {
             field = value
-            notifyDataSetChanged()
+            recreate()
         }
 
     var idLayoutHeader = R.layout.item_empty
         set(value) {
             field = value
-            notifyDataSetChanged()
+            recreate()
         }
 
     var idLayoutFooter = R.layout.item_empty
         set(value) {
             field = value
-            notifyDataSetChanged()
+            recreate()
         }
 
     var idLayoutEmpty = R.layout.item_empty
         set(value) {
             field = value
-            notifyDataSetChanged()
+            recreate()
         }
 
     var nbColumns = 1
@@ -71,7 +72,7 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
                     }
                 }
             }
-            notifyDataSetChanged()
+            refresh()
         }
 
     var spaceDivider: Int = 0
@@ -96,7 +97,7 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
                     }
                 }
             })
-            notifyDataSetChanged()
+            refresh()
         }
 
     var dragNDropEnable = false
@@ -121,15 +122,15 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
                 removeOnItemTouchListener(scrollItemDecorator)
                 removeItemDecoration(scrollItemDecorator)
             }
-            notifyDataSetChanged()
+            refresh()
         }
 
     @ColorInt
-    var thumbEnableColor = context.getColor(context.getResIdFromAndroidAttr(android.R.attr.colorAccent))
+    var thumbEnableColor = context.colorResToColorInt(context.getResIdFromAndroidAttr(android.R.attr.colorAccent))
     @ColorInt
-    var thumbDisableColor = context.getColor(android.R.color.darker_gray)
+    var thumbDisableColor = context.colorResToColorInt(android.R.color.darker_gray)
     @ColorInt
-    var thumbTextColor =  context.getColor(android.R.color.white)
+    var thumbTextColor =  context.colorResToColorInt(android.R.color.white)
     var thumbMinHeight = context.dpToPx(36)
     var thumbWidth = context.dpToPx(4)
     var thumbCorner = context.dpToPx(8)
@@ -418,7 +419,7 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
         addOnScrollListener(scrollListener)
     }
 
-    fun notifyDataSetChanged() {
+    fun refresh() {
         adapter?.notifyDataSetChanged()
     }
 

@@ -5,7 +5,8 @@ import android.view.MenuItem
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import bzh.zelyon.lib.R
-import bzh.zelyon.lib.extension.*
+import bzh.zelyon.lib.extension.fullBack
+import bzh.zelyon.lib.extension.showFragment
 import bzh.zelyon.lib.ui.view.fragment.AbsFragment
 import com.google.android.material.navigation.NavigationView
 

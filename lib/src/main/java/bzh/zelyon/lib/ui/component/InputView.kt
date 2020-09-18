@@ -25,6 +25,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import bzh.zelyon.lib.R
 import bzh.zelyon.lib.extension.closeKeyboard
+import bzh.zelyon.lib.extension.drawableResToDrawable
 import bzh.zelyon.lib.extension.vibrate
 import bzh.zelyon.lib.ui.view.activity.AbsActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -59,14 +60,14 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 Type.DECIMAL -> view_input_edittext.inputType = EditorInfo.TYPE_CLASS_NUMBER or
                         EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
                 Type.EMAIL -> {
-                    setEndIcon(EndIcon.Custom(context.getDrawable(R.drawable.ic_email)) {
+                    setEndIcon(EndIcon.Custom(context.drawableResToDrawable(R.drawable.ic_email)) {
                         context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$text")))
                     })
                     view_input_edittext.inputType = EditorInfo.TYPE_CLASS_TEXT or
                             InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
                 }
                 Type.PHONE -> {
-                    setEndIcon(EndIcon.Custom(context.getDrawable(R.drawable.ic_call)) {
+                    setEndIcon(EndIcon.Custom(context.drawableResToDrawable(R.drawable.ic_call)) {
                         (context as? AbsActivity)?.ifPermissions(Manifest.permission.CALL_PHONE) {
                             if (it) {
                                 context.startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:$text")))
@@ -91,7 +92,7 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                     isMenuContextEnabled = false
                 }
                 Type.DATE -> {
-                    setEndIcon(EndIcon.Custom(context.getDrawable(R.drawable.ic_event)) {
+                    setEndIcon(EndIcon.Custom(context.drawableResToDrawable(R.drawable.ic_event)) {
                         context.startActivity(Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI).apply {
                             putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, date?.time ?: 0)
                         })
@@ -100,7 +101,7 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                     onAction { showDate(Calendar.getInstance().apply { time = date ?: Date() }, false) }
                 }
                 Type.DATE_TIME -> {
-                    setEndIcon(EndIcon.Custom(context.getDrawable(R.drawable.ic_event)) {
+                    setEndIcon(EndIcon.Custom(context.drawableResToDrawable(R.drawable.ic_event)) {
                         context.startActivity(Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI).apply {
                             putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, date?.time ?: 0)
                         })
@@ -109,7 +110,7 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                     onAction { showDate(Calendar.getInstance().apply { time = date ?: Date() }, true) }
                 }
                 Type.TIME -> {
-                    setEndIcon(EndIcon.Custom(context.getDrawable(R.drawable.ic_event)) {
+                    setEndIcon(EndIcon.Custom(context.drawableResToDrawable(R.drawable.ic_event)) {
                         context.startActivity(Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI).apply {
                             putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, date?.time ?: 0)
                         })
@@ -443,7 +444,7 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             is EndIcon.ClearText -> view_input_layout.endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
             is EndIcon.Info -> {
                 view_input_layout.endIconMode = TextInputLayout.END_ICON_CUSTOM
-                view_input_layout.endIconDrawable = context.getDrawable(R.drawable.ic_info)
+                view_input_layout.endIconDrawable = context.drawableResToDrawable(R.drawable.ic_info)
                 view_input_layout.setEndIconOnClickListener {
                     AlertDialog.Builder(context).setMessage(endIcon.infos).show()
                 }
