@@ -158,6 +158,7 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     var number get() = decimal.toInt()
         set(value) {
             decimal = value.toFloat()
+            text = value.toString()
         }
     var minNumber get() = minDecimal?.toInt()
         set(value) {
