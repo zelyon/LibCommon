@@ -400,17 +400,25 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         }
         if (text.trim().length !in (minLength?:0)..(maxLength?:Int.MAX_VALUE)) {
             errorsMessages.add(when {
-                minLength != null && maxLength != null -> context.getString(R.string.inputview_field_lenght, minLength, maxLength)
-                minLength != null -> context.getString(R.string.inputview_field_min_lenght, minLength)
-                maxLength != null -> context.getString(R.string.inputview_field_max_lenght, maxLength)
+                minLength != null && maxLength != null -> context.getString(R.string.inputview_field_lenght, minLength.toString(), maxLength.toString())
+                minLength != null -> context.getString(R.string.inputview_field_min_lenght, minLength.toString())
+                maxLength != null -> context.getString(R.string.inputview_field_max_lenght, maxLength.toString())
                 else -> ""
             })
         }
-        if (type in listOf(Type.NUMBER, Type.DECIMAL) && decimal !in (minDecimal?:-Float.MAX_VALUE)..(maxDecimal?:Float.MAX_VALUE)) {
+        if (type == Type.NUMBER && number !in (minNumber?:-Int.MAX_VALUE)..(maxNumber?:Int.MAX_VALUE)) {
             errorsMessages.add(when {
-                minDecimal != null && maxDecimal != null -> context.getString(R.string.inputview_field_number, minDecimal, maxDecimal)
-                minDecimal != null -> context.getString(R.string.inputview_field_min_number, minDecimal)
-                maxDecimal != null -> context.getString(R.string.inputview_field_max_number, maxDecimal)
+                minNumber != null && maxNumber != null -> context.getString(R.string.inputview_field_number, minNumber.toString(), maxNumber.toString())
+                minNumber != null -> context.getString(R.string.inputview_field_min_number, minNumber.toString())
+                maxNumber != null -> context.getString(R.string.inputview_field_max_number, maxNumber.toString())
+                else -> ""
+            })
+        }
+        if (type == Type.DECIMAL && decimal !in (minDecimal?:-Float.MAX_VALUE)..(maxDecimal?:Float.MAX_VALUE)) {
+            errorsMessages.add(when {
+                minDecimal != null && maxDecimal != null -> context.getString(R.string.inputview_field_number, minDecimal.toString(), maxDecimal.toString())
+                minDecimal != null -> context.getString(R.string.inputview_field_min_number, minDecimal.toString())
+                maxDecimal != null -> context.getString(R.string.inputview_field_max_number, maxDecimal.toString())
                 else -> ""
             })
         }
