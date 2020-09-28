@@ -14,10 +14,12 @@ import bzh.zelyon.lib.ui.view.activity.AbsActivity
 
 abstract class AbsFragment: Fragment() {
 
-    val absActivity: AbsActivity = activity as AbsActivity
+    lateinit var absActivity: AbsActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        absActivity = activity as AbsActivity
 
         sharedElementEnterTransition = android.transition.TransitionInflater.from(absActivity).inflateTransition(R.transition.enter_transition)
         exitTransition = android.transition.TransitionInflater.from(absActivity).inflateTransition(R.transition.exit_transition)
