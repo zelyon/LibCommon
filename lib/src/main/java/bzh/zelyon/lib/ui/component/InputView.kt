@@ -305,7 +305,7 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         choicesPopup?.dismiss()
         choicesPopup = BottomSheetDialog(context).apply {
             val allChoices = choices
-            val itemsView = CollectionsView(context).apply {
+            val collectionsView = CollectionsView(context).apply {
                 idLayoutItem = R.layout.item_input_list
                 helper = object : CollectionsView.Helper() {
                     override fun onBindItem(itemView: View, items: MutableList<*>, position: Int) {
@@ -358,7 +358,7 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             val inputView = InputView(context).apply {
                 label = context.getString(if (custom) R.string.inputview_search_or_add else R.string.inputview_search)
                 onTextChange { search ->
-                    itemsView.items = allChoices.filter {
+                    collectionsView.items = allChoices.filter {
                         it.label.toLowerCase(Locale.getDefault()).contains(search.toLowerCase(Locale.getDefault()))
                     }.toMutableList().apply {
                         if (custom && search.isNotBlank()) {
@@ -371,7 +371,7 @@ class InputView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 orientation = LinearLayout.VERTICAL
                 addView(toolbar)
                 addView(inputView)
-                addView(itemsView)
+                addView(collectionsView)
             })
         }
         choicesPopup?.show()

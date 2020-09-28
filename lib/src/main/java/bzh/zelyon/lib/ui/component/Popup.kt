@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
@@ -26,14 +27,14 @@ class Popup (
     private val positiveText: String? = null,
     private val negativeText: String? = null,
     private val neutralText: String? = null,
-    private val positiveClick: View.OnClickListener? = null,
-    private val negativeClick: View.OnClickListener? = null,
-    private val neutralClick: View.OnClickListener? = null,
+    private val positiveClick:() -> Unit = {},
+    private val negativeClick:() -> Unit = {},
+    private val neutralClick:() -> Unit = {},
     private val positiveDismiss: Boolean = true,
     private val negativeDismiss: Boolean = true,
     private val neutralDismiss: Boolean = true,
-    private val choicesText: Array<String> = arrayOf(),
-    private val choicesClick: Array<View.OnClickListener> = arrayOf(),
+    private val choicesText: List<String> = listOf(),
+    private val choicesClick: List<() -> Unit> = listOf(),
     private val onDismissListener: DialogInterface.OnDismissListener? = null,
     private val onShowListener: DialogInterface.OnShowListener? = null,
     private val customView: View? = null,
@@ -59,22 +60,22 @@ class Popup (
             }
             positiveText?.let { positiveText ->
                 setPositiveButton(positiveText) { _, _ ->
-                    positiveClick?.onClick(null)
+                    positiveClick.invoke()
                 }
             }
             negativeText?.let { negativeText ->
                 setPositiveButton(negativeText) { _, _ ->
-                    negativeClick?.onClick(null)
+                    negativeClick.invoke()
                 }
             }
             neutralText?.let { neutralText ->
                 setPositiveButton(neutralText) { _, _ ->
-                    neutralClick?.onClick(null)
+                    neutralClick.invoke()
                 }
             }
             if (choicesText.isNotEmpty()) {
-                setItems(choicesText) { _, which ->
-                    choicesClick[which].onClick(null)
+                setItems(choicesText.toTypedArray()) { _, which ->
+                    choicesClick[which].invoke()
                 }
             }
         }
@@ -91,13 +92,19 @@ class Popup (
             setOnShowListener { listener ->
                 onShowListener?.onShow(listener)
                 if (!positiveDismiss) {
-                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(positiveClick)
+                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener{
+                        positiveClick.invoke()
+                    }
                 }
                 if (!negativeDismiss) {
-                    getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(negativeClick)
+                    getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener{
+                        negativeClick.invoke()
+                    }
                 }
                 if (!neutralDismiss) {
-                    getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(neutralClick)
+                    getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener{
+                        neutralClick.invoke()
+                    }
                 }
             }
         }
@@ -108,91 +115,93 @@ class Popup (
         dismissBottom()
         bottomSheetDialog = BottomSheetDialog(activity).apply {
             setCancelable(cancelable)
-            val layout = LinearLayout(activity)
-            layout.orientation = LinearLayout.VERTICAL
-            layout.gravity = Gravity.CENTER_HORIZONTAL
-            icon?.let { icon ->
-                val imageView = ImageView(activity)
-                imageView.setImageDrawable(icon)
-                layout.addView(imageView, ViewParams(activity, 64, 64).centerHorizontalGravity().margins(12).linear())
-            }
-            title?.let { title ->
-                val textView = TextView(activity)
-                textView.gravity = Gravity.CENTER_HORIZONTAL
-                textView.textSize = 18F
-                textView.typeface = Typeface.DEFAULT_BOLD
-                textView.text = title
-                layout.addView(textView, ViewParams(activity).margins(12).linear())
-            }
-            message?.let { message ->
-                val textView = TextView(activity)
-                textView.gravity = Gravity.CENTER_HORIZONTAL
-                textView.textSize = 14F
-                textView.text = message
-                layout.addView(textView, ViewParams(activity).margins(12).linear())
-            }
-            if (choicesText.isNotEmpty()) {
+            val nestedScrollView = NestedScrollView(activity)
+            nestedScrollView.addView(LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER_HORIZONTAL
+                icon?.let { icon ->
+                    val imageView = ImageView(activity)
+                    imageView.setImageDrawable(icon)
+                    addView(imageView, ViewParams(activity, 64, 64).centerHorizontalGravity().margins(12).linear())
+                }
+                title?.let { title ->
+                    val textView = TextView(activity)
+                    textView.gravity = Gravity.CENTER_HORIZONTAL
+                    textView.textSize = 18F
+                    textView.typeface = Typeface.DEFAULT_BOLD
+                    textView.text = title
+                    addView(textView, ViewParams(activity).margins(12).linear())
+                }
+                message?.let { message ->
+                    val textView = TextView(activity)
+                    textView.gravity = Gravity.CENTER_HORIZONTAL
+                    textView.textSize = 14F
+                    textView.text = message
+                    addView(textView, ViewParams(activity).margins(12).linear())
+                }
+                customView?.let { customView ->
+                    addView(customView)
+                }
+                if (choicesText.isNotEmpty()) {
+                    val collectionsView = CollectionsView(activity)
+                    collectionsView.items = choicesText.toMutableList()
+                    collectionsView.idLayoutItem = android.R.layout.simple_list_item_1
+                    collectionsView.helper = object : CollectionsView.Helper() {
+                        override fun onBindItem(itemView: View, items: MutableList<*>, position: Int) {
+                            val item = items[position]
+                            if (item is String) {
+                                itemView.findViewById<TextView>(android.R.id.text1).text = item
+                            }
+                        }
 
-                val itemsView = CollectionsView(activity)
-                itemsView.items = choicesText.toMutableList()
-                itemsView.helper = object : CollectionsView.Helper() {
-                    override fun onBindItem(itemView: View, items: MutableList<*>, position: Int) {
-                        val item = items[position]
-                        if (item is String) {
-                            itemView.findViewById<TextView>(android.R.id.text1).text = item
+                        override fun onItemClick(itemView: View, items: MutableList<*>, position: Int) {
+                            choicesClick[position].invoke()
                         }
                     }
 
-                    override fun onItemClick(itemView: View, items: MutableList<*>, position: Int) {
-                        choicesClick[position].onClick(null)
-                    }
+                    addView(collectionsView, ViewParams(activity).margins(12).linear())
                 }
-
-                layout.addView(itemsView, ViewParams(activity).margins(12).linear())
-            }
-            customView?.let { customView ->
-                layout.addView(customView)
-            }
-            positiveText?.let { positiveText ->
-                val materialButton = MaterialButton(activity)
-                materialButton.text = positiveText
-                materialButton.setOnClickListener {
-                    positiveClick?.onClick(null)
-                    if (positiveDismiss) {
-                        bottomSheetDialog?.dismiss()
+                positiveText?.let { positiveText ->
+                    val materialButton = MaterialButton(activity)
+                    materialButton.text = positiveText
+                    materialButton.setOnClickListener {
+                        positiveClick.invoke()
+                        if (positiveDismiss) {
+                            bottomSheetDialog?.dismiss()
+                        }
                     }
+                    addView(materialButton, ViewParams(activity).margins(4).linear())
                 }
-                layout.addView(materialButton, ViewParams(activity).margins(4).linear())
-            }
-            negativeText?.let { negativeText ->
-                val materialButton = MaterialButton(activity)
-                materialButton.text = negativeText
-                materialButton.setOnClickListener {
-                    negativeClick?.onClick(null)
-                    if (negativeDismiss) {
-                        bottomSheetDialog?.dismiss()
+                negativeText?.let { negativeText ->
+                    val materialButton = MaterialButton(activity)
+                    materialButton.text = negativeText
+                    materialButton.setOnClickListener {
+                        negativeClick.invoke()
+                        if (negativeDismiss) {
+                            bottomSheetDialog?.dismiss()
+                        }
                     }
+                    addView(materialButton, ViewParams(activity).margins(4).linear())
                 }
-                layout.addView(materialButton, ViewParams(activity).margins(4).linear())
-            }
-            neutralText?.let { neutralText ->
-                val materialButton = MaterialButton(activity)
-                materialButton.text = neutralText
-                materialButton.setOnClickListener {
-                    neutralClick?.onClick(null)
-                    if (neutralDismiss) {
-                        bottomSheetDialog?.dismiss()
+                neutralText?.let { neutralText ->
+                    val materialButton = MaterialButton(activity)
+                    materialButton.text = neutralText
+                    materialButton.setOnClickListener {
+                        neutralClick.invoke()
+                        if (neutralDismiss) {
+                            bottomSheetDialog?.dismiss()
+                        }
                     }
+                    addView(materialButton, ViewParams(activity).margins(4).linear())
                 }
-                layout.addView(materialButton, ViewParams(activity).margins(4).linear())
-            }
-            setContentView(layout)
+            })
+            setContentView(nestedScrollView)
             onDismissListener?.let { listener ->
                 setOnDismissListener(listener)
             }
             setOnShowListener { listener ->
                 onShowListener?.onShow(listener)
-                BottomSheetBehavior.from(layout.parent as View).state = BottomSheetBehavior.STATE_EXPANDED
+                BottomSheetBehavior.from(nestedScrollView.parent as View).state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
         bottomSheetDialog?.show()
@@ -225,17 +234,17 @@ class Popup (
                     }
                     positiveText?.let { positiveText ->
                         timePickerDialog.setButton(AlertDialog.BUTTON_POSITIVE, positiveText) { _, _ ->
-                            positiveClick?.onClick(null)
+                            positiveClick.invoke()
                         }
                     }
                     negativeText?.let { negativeText ->
                         timePickerDialog.setButton(AlertDialog.BUTTON_NEGATIVE, negativeText) { _, _ ->
-                            negativeClick?.onClick(null)
+                            negativeClick.invoke()
                         }
                     }
                     neutralText?.let { neutralText ->
                         timePickerDialog.setButton(AlertDialog.BUTTON_NEUTRAL, neutralText) { _, _ ->
-                            neutralClick?.onClick(null)
+                            neutralClick.invoke()
                         }
                     }
                     customView?.let { customView ->
@@ -266,7 +275,7 @@ class Popup (
             }
             positiveText?.let { positiveText ->
                 setButton(DialogInterface.BUTTON_POSITIVE, positiveText) { dialog, _ ->
-                    positiveClick?.onClick(null)
+                    positiveClick.invoke()
                     if (positiveDismiss) {
                         dialog.dismiss()
                     }
@@ -274,7 +283,7 @@ class Popup (
             }
             negativeText?.let { negativeText ->
                 setButton(DialogInterface.BUTTON_NEGATIVE, negativeText) { dialog, _ ->
-                    negativeClick?.onClick(null)
+                    negativeClick.invoke()
                     if (negativeDismiss) {
                         dialog.dismiss()
                     }
@@ -282,7 +291,7 @@ class Popup (
             }
             neutralText?.let { neutralText ->
                 setButton(DialogInterface.BUTTON_NEUTRAL, neutralText) { dialog, _ ->
-                    neutralClick?.onClick(null)
+                    neutralClick.invoke()
                     if (neutralDismiss) {
                         dialog.dismiss()
                     }
