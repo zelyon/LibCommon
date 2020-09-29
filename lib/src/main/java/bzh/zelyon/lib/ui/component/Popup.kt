@@ -156,7 +156,10 @@ class Popup (
                         }
 
                         override fun onItemClick(itemView: View, items: MutableList<*>, position: Int) {
-                            choices.map { it.callback }[position].invoke()
+                            choices[position].callback.invoke()
+                            if (choices[position].dismiss) {
+                                dismissBottom()
+                            }
                         }
                     }
 
@@ -319,7 +322,8 @@ class Popup (
 
     class Choice(
         val label: String,
-        val callback: () -> Unit,
+        val dismiss: Boolean = true,
+        val callback: () -> Unit
     )
 
     companion object {
