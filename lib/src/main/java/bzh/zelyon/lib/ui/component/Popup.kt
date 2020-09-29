@@ -14,9 +14,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
+import bzh.zelyon.lib.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
+import kotlinx.android.synthetic.main.item_popup_bottom.view.*
 import java.util.*
 
 class Popup (
@@ -33,8 +35,7 @@ class Popup (
     private val positiveDismiss: Boolean = true,
     private val negativeDismiss: Boolean = true,
     private val neutralDismiss: Boolean = true,
-    private val choicesText: List<String> = listOf(),
-    private val choicesClick: List<() -> Unit> = listOf(),
+    private val choices: List<Choice> = listOf(),
     private val onDismissListener: DialogInterface.OnDismissListener? = null,
     private val onShowListener: DialogInterface.OnShowListener? = null,
     private val customView: View? = null,
@@ -73,9 +74,9 @@ class Popup (
                     neutralClick.invoke()
                 }
             }
-            if (choicesText.isNotEmpty()) {
-                setItems(choicesText.toTypedArray()) { _, which ->
-                    choicesClick[which].invoke()
+            if (choices.isNotEmpty()) {
+                setItems(choices.map { it.label }.toTypedArray()) { _, which ->
+                    choices.map { it.callback }[which].invoke()
                 }
             }
         }
@@ -142,24 +143,24 @@ class Popup (
                 customView?.let { customView ->
                     addView(customView)
                 }
-                if (choicesText.isNotEmpty()) {
+                if (choices.isNotEmpty()) {
                     val collectionsView = CollectionsView(activity)
-                    collectionsView.items = choicesText.toMutableList()
-                    collectionsView.idLayoutItem = android.R.layout.simple_list_item_1
+                    collectionsView.items = choices.map { it.label }.toMutableList()
+                    collectionsView.idLayoutItem = R.layout.item_popup_bottom
                     collectionsView.helper = object : CollectionsView.Helper() {
                         override fun onBindItem(itemView: View, items: MutableList<*>, position: Int) {
                             val item = items[position]
                             if (item is String) {
-                                itemView.findViewById<TextView>(android.R.id.text1).text = item
+                                itemView.item_popup_bottom_textview.text = item
                             }
                         }
 
                         override fun onItemClick(itemView: View, items: MutableList<*>, position: Int) {
-                            choicesClick[position].invoke()
+                            choices.map { it.callback }[position].invoke()
                         }
                     }
 
-                    addView(collectionsView, ViewParams(activity).margins(12).linear())
+                    addView(collectionsView, ViewParams(activity).margins(12, 0).linear())
                 }
                 positiveText?.let { positiveText ->
                     val materialButton = MaterialButton(activity)
@@ -167,7 +168,7 @@ class Popup (
                     materialButton.setOnClickListener {
                         positiveClick.invoke()
                         if (positiveDismiss) {
-                            bottomSheetDialog?.dismiss()
+                            datePickerDialog?.dismiss()
                         }
                     }
                     addView(materialButton, ViewParams(activity).margins(4).linear())
@@ -178,7 +179,7 @@ class Popup (
                     materialButton.setOnClickListener {
                         negativeClick.invoke()
                         if (negativeDismiss) {
-                            bottomSheetDialog?.dismiss()
+                            datePickerDialog?.dismiss()
                         }
                     }
                     addView(materialButton, ViewParams(activity).margins(4).linear())
@@ -189,7 +190,7 @@ class Popup (
                     materialButton.setOnClickListener {
                         neutralClick.invoke()
                         if (neutralDismiss) {
-                            bottomSheetDialog?.dismiss()
+                            datePickerDialog?.dismiss()
                         }
                     }
                     addView(materialButton, ViewParams(activity).margins(4).linear())
@@ -210,53 +211,53 @@ class Popup (
     fun dateTime() {
         val calendar = Calendar.getInstance()
         calendar.time = defaultDate ?: Date()
-        val datePickerDialog = DatePickerDialog(
+        datePickerDialog = DatePickerDialog(
             activity,
             DatePickerDialog.OnDateSetListener { datePicker, year, month, dayOfMonth ->
                 onDateSetListener?.onDateSet(datePicker, year, month, dayOfMonth)
                 onTimeSetListener?.let { onTimeSetListener ->
-                    val timePickerDialog = TimePickerDialog(
+                    timePickerDialog = TimePickerDialog(
                         activity,
                         onTimeSetListener,
                         calendar.get(Calendar.HOUR_OF_DAY),
                         calendar.get(Calendar.MINUTE),
                         true
                     )
-                    timePickerDialog.setCancelable(cancelable)
+                    timePickerDialog?.setCancelable(cancelable)
                     icon?.let { icon ->
-                        timePickerDialog.setIcon(icon)
+                        timePickerDialog?.setIcon(icon)
                     }
                     title?.let { title ->
-                        timePickerDialog.setTitle(title)
+                        timePickerDialog?.setTitle(title)
                     }
                     message?.let { message ->
-                        timePickerDialog.setMessage(message)
+                        timePickerDialog?.setMessage(message)
                     }
                     positiveText?.let { positiveText ->
-                        timePickerDialog.setButton(AlertDialog.BUTTON_POSITIVE, positiveText) { _, _ ->
+                        timePickerDialog?.setButton(AlertDialog.BUTTON_POSITIVE, positiveText) { _, _ ->
                             positiveClick.invoke()
                         }
                     }
                     negativeText?.let { negativeText ->
-                        timePickerDialog.setButton(AlertDialog.BUTTON_NEGATIVE, negativeText) { _, _ ->
+                        timePickerDialog?.setButton(AlertDialog.BUTTON_NEGATIVE, negativeText) { _, _ ->
                             negativeClick.invoke()
                         }
                     }
                     neutralText?.let { neutralText ->
-                        timePickerDialog.setButton(AlertDialog.BUTTON_NEUTRAL, neutralText) { _, _ ->
+                        timePickerDialog?.setButton(AlertDialog.BUTTON_NEUTRAL, neutralText) { _, _ ->
                             neutralClick.invoke()
                         }
                     }
                     customView?.let { customView ->
-                        timePickerDialog.setContentView(customView)
+                        timePickerDialog?.setContentView(customView)
                     }
                     onDismissListener?.let { listener ->
-                        timePickerDialog.setOnDismissListener(listener)
+                        timePickerDialog?.setOnDismissListener(listener)
                     }
                     onShowListener?.let { listener ->
-                        timePickerDialog.setOnShowListener(listener)
+                        timePickerDialog?.setOnShowListener(listener)
                     }
-                    timePickerDialog.show()
+                    timePickerDialog?.show()
                 }
             },
             calendar.get(Calendar.YEAR),
@@ -312,17 +313,31 @@ class Popup (
             maxDate?.let { maxDate ->
                 datePicker.minDate = maxDate.time
             }
-        }.show()
+        }
+        datePickerDialog?.show()
     }
+
+    class Choice(
+        val label: String,
+        val callback: () -> Unit,
+    )
 
     companion object {
         private var alertDialog: AlertDialog? = null
         private var bottomSheetDialog: BottomSheetDialog? = null
+        private var datePickerDialog: DatePickerDialog? = null
+        private var timePickerDialog: TimePickerDialog? = null
         fun dismiss() {
             alertDialog?.dismiss()
         }
         fun dismissBottom() {
             bottomSheetDialog?.dismiss()
+        }
+        fun dismissDatePicker() {
+            datePickerDialog?.dismiss()
+        }
+        fun dismissTimePicker() {
+            timePickerDialog?.dismiss()
         }
     }
 }
