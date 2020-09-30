@@ -9,11 +9,11 @@ import bzh.zelyon.lib.R
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.view_filter.view.*
 
-class FilterView<T> @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0): FrameLayout(context, attrs, defStyleAttr) {
+class FilterView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0): FrameLayout(context, attrs, defStyleAttr) {
 
-    private var items = listOf<Item<T>>()
-    private var appliedValues = listOf<T>()
-    private var selectedValues = mutableListOf<T>()
+    private var items = listOf<Item>()
+    private var appliedValues = listOf<Any>()
+    private var selectedValues = mutableListOf<Any>()
 
     init {
         View.inflate(context, R.layout.view_filter, this)
@@ -22,14 +22,14 @@ class FilterView<T> @JvmOverloads constructor(context: Context, attrs: Attribute
         typedArray.recycle()
     }
 
-    fun load(items: List<Item<T>>, selectedAndApplyValue: List<T>) {
+    fun load(items: List<Item>, selectedAndApplyValue: List<Any>) {
         this.items = items
         this.appliedValues = selectedAndApplyValue
         this.selectedValues = selectedAndApplyValue.toMutableList()
         reload()
     }
 
-    fun getSelectedAndApply(): List<T> {
+    fun getSelectedAndApply(): List<Any> {
         appliedValues = selectedValues
         return appliedValues
     }
@@ -65,5 +65,5 @@ class FilterView<T> @JvmOverloads constructor(context: Context, attrs: Attribute
         }
     }
 
-    class Item<T> (val value: T, val label: String, val image: Drawable)
+    class Item (val value: Any, val label: String, val image: Drawable? = null)
 }

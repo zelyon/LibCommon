@@ -1,6 +1,7 @@
 package bzh.zelyon.lib.extension
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
@@ -16,21 +17,17 @@ import java.io.File
 
 fun AbsActivity.getCurrentFragment() = supportFragmentManager.findFragmentById(getFragmentContainerId()) as? AbsFragment
 
-fun AbsActivity.showFragment(fragment: Fragment, addToBackStack: Boolean = true, transitionView: View? = null) {
+fun AbsActivity.showFragment(fragment: Fragment, addToBackStack: Boolean = getCurrentFragment() != null, transitionView: View? = null) {
     when (fragment) {
-        is AbsFragment -> {
-            supportFragmentManager.beginTransaction().replace(getFragmentContainerId(), fragment).apply {
-                if (addToBackStack && getCurrentFragment() != null) {
-                    addToBackStack(fragment.javaClass.name)
-                }
-                transitionView?.let {
-                    setReorderingAllowed(true).addSharedElement(transitionView, transitionView.transitionName)
-                }
-            }.commit()
-        }
-        is AbsBottomSheetFragment -> {
-            fragment.show(supportFragmentManager, fragment.javaClass.name)
-        }
+        is AbsFragment -> supportFragmentManager.beginTransaction().replace(getFragmentContainerId(), fragment).apply {
+            if (addToBackStack) {
+                addToBackStack(fragment.javaClass.name)
+            }
+            transitionView?.let {
+                setReorderingAllowed(true).addSharedElement(transitionView, transitionView.transitionName)
+            }
+        }.commit()
+        is AbsBottomSheetFragment -> fragment.show(supportFragmentManager, fragment.javaClass.name)
     }
 }
 
@@ -77,3 +74,15 @@ fun AbsActivity.openGallery(multiple: Boolean = false) {
         }
     }
 }
+
+fun AbsActivity.setBoolean(key: String, value: Boolean) = getPreferences(Context.MODE_PRIVATE).edit().putBoolean(key, value).apply()
+
+fun AbsActivity.setString(key: String, value: String) = getPreferences(Context.MODE_PRIVATE).edit().putString(key, value).apply()
+
+fun AbsActivity.setInt(key: String, value: Int) = getPreferences(Context.MODE_PRIVATE).edit().putInt(key, value).apply()
+
+fun AbsActivity.getBoolean(key: String) = getPreferences(Context.MODE_PRIVATE).getBoolean(key, false)
+
+fun AbsActivity.getString(key: String, value: String) = getPreferences(Context.MODE_PRIVATE).getString(key, null)
+
+fun AbsActivity.getInt(key: String, value: Int) = getPreferences(Context.MODE_PRIVATE).getInt(key, 0)

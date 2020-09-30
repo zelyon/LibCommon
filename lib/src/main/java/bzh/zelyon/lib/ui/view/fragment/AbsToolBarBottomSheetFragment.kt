@@ -47,6 +47,11 @@ abstract class AbsToolBarBottomSheetFragment: AbsBottomSheetFragment() {
 
     abstract fun getIdToolbar(): Int
 
+    fun updateToolBar() {
+        toolbar?.title = getTitleToolBar()
+        toolbar?.subtitle = getSubTitleToolBar()
+    }
+
     open fun getTitleToolBar() = ""
 
     open fun getSubTitleToolBar() = ""

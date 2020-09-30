@@ -11,21 +11,8 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.signature.ObjectKey
 import java.io.File
-
-fun Context.loadImage(any: Any? = null, actionResult:() -> Unit = {})= Glide.with(this)
-    .safeLoad(any)
-    .listener(object : RequestListener<Drawable> {
-        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-            actionResult.invoke()
-            return false
-        }
-        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-            actionResult.invoke()
-            return false
-        }
-    })
-    .preload()
 
 fun Context.getImageAsBitmap(any: Any): Bitmap = Glide.with(this)
     .asBitmap()
@@ -78,12 +65,33 @@ fun Context.getImageAsFile(any: Any): File = Glide.with(this)
     .submit()
     .get()
 
-fun ImageView.setImage(any: Any, placeholder: Drawable? = null) = Glide.with(this)
+fun ImageView.setImage(any: Any, placeholder: Drawable? = null, signature: String? = null) = Glide.with(this)
     .safeLoad(any)
-    .placeholder(placeholder)
-    .error(placeholder)
     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+    .apply {
+        placeholder?.let {
+            placeholder(it)
+            error(it)
+        }
+        signature?.let {
+            signature(ObjectKey(it))
+        }
+    }
     .into(this)
+
+fun Context.loadImage(any: Any? = null, actionResult:(Boolean) -> Unit = {})= Glide.with(this)
+    .safeLoad(any)
+    .listener(object : RequestListener<Drawable> {
+        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+            actionResult.invoke(false)
+            return false
+        }
+        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+            actionResult.invoke(true)
+            return false
+        }
+    })
+    .preload()
 
 private fun RequestManager.safeLoad(any: Any? = null) = when (any) {
     is String -> load(any)
