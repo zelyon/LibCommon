@@ -13,6 +13,8 @@
         <attr name="id_layout_header" format="reference"/>
         <attr name="id_layout_footer" format="reference"/>
         <attr name="id_layout_empty" format="reference"/>
+        <attr name="header_height" format="dimension"/>
+        <attr name="footer_height" format="dimension"/>
         <attr name="nb_colums" format="integer"/>
         <attr name="space_divider" format="dimension"/>
         <attr name="drag_n_drop_enable" format="boolean"/>

@@ -61,6 +61,18 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
             recreate()
         }
 
+    var headerHeight: Float? = null
+        set(value) {
+            field = if (value != -1F) value else null
+            recreate()
+        }
+
+    var footerHeight: Float? = null
+        set(value) {
+            field = if (value != -1F) value else null
+            recreate()
+        }
+
     var nbColumns = 1
         set(value) {
             field = value
@@ -355,9 +367,23 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
 
         override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
             when (getItemViewType(position)) {
-                HEADER_TYPE -> helper?.onBindHeader(viewHolder.itemView)
-                FOOTER_TYPE -> helper?.onBindFooter(viewHolder.itemView)
-                EMPTY_TYPE -> helper?.onBindEmpty(viewHolder.itemView)
+                HEADER_TYPE -> {
+                    headerHeight?.let {
+                        viewHolder.itemView.layoutParams.height = it.toInt()
+                        viewHolder.itemView.requestLayout()
+                    }
+                    helper?.onBindHeader(viewHolder.itemView)
+                }
+                FOOTER_TYPE -> {
+                    footerHeight?.let {
+                        viewHolder.itemView.layoutParams.height = it.toInt()
+                        viewHolder.itemView.requestLayout()
+                    }
+                    helper?.onBindFooter(viewHolder.itemView)
+                }
+                EMPTY_TYPE -> {
+                    helper?.onBindEmpty(viewHolder.itemView)
+                }
                 DATA_TYPE -> {
                     helper?.onBindItem(viewHolder.itemView, items, position - 1)
                     viewHolder.itemView.setOnClickListener {
@@ -388,14 +414,16 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
         idLayoutHeader = typedArray.getResourceId(R.styleable.CollectionsView_id_layout_header, R.layout.item_empty)
         idLayoutFooter = typedArray.getResourceId(R.styleable.CollectionsView_id_layout_footer, R.layout.item_empty)
         idLayoutEmpty = typedArray.getResourceId(R.styleable.CollectionsView_id_layout_empty, R.layout.item_empty)
+        headerHeight = typedArray.getDimension(R.styleable.CollectionsView_header_height, -1F)
+        footerHeight = typedArray.getDimension(R.styleable.CollectionsView_footer_height, -1F)
         nbColumns = typedArray.getInt(R.styleable.CollectionsView_nb_colums, 1)
         spaceDivider = typedArray.getDimensionPixelSize(R.styleable.CollectionsView_space_divider, 0)
         dragNDropEnable = typedArray.getBoolean(R.styleable.CollectionsView_drag_n_drop_enable, false)
         swipeEnable = typedArray.getBoolean(R.styleable.CollectionsView_swipe_enable, false)
         fastScrollEnable = typedArray.getBoolean(R.styleable.CollectionsView_fast_scroll_enable, false)
-        thumbEnableColor = typedArray.getColor(R.styleable.CollectionsView_thumb_enable_color, context.getColor(context.getResIdFromAndroidAttr(android.R.attr.colorAccent)))
-        thumbDisableColor = typedArray.getColor(R.styleable.CollectionsView_thumb_disable_color, context.getColor(android.R.color.darker_gray))
-        thumbTextColor = typedArray.getColor(R.styleable.CollectionsView_thumb_text_color, context.getColor(android.R.color.white))
+        thumbEnableColor = typedArray.getColor(R.styleable.CollectionsView_thumb_enable_color, context.colorResToColorInt(context.getResIdFromAndroidAttr(android.R.attr.colorAccent)))
+        thumbDisableColor = typedArray.getColor(R.styleable.CollectionsView_thumb_disable_color, context.colorResToColorInt(android.R.color.darker_gray))
+        thumbTextColor = typedArray.getColor(R.styleable.CollectionsView_thumb_text_color, context.colorResToColorInt(android.R.color.white))
         thumbMinHeight = typedArray.getDimension(R.styleable.CollectionsView_thumb_min_height, context.dpToPx(36))
         thumbWidth = typedArray.getDimension(R.styleable.CollectionsView_thumb_width, context.dpToPx(4))
         thumbCorner = typedArray.getDimension(R.styleable.CollectionsView_thumb_corner, context.dpToPx(8))
