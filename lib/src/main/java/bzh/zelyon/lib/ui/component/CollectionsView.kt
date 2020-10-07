@@ -14,9 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import bzh.zelyon.lib.R
-import bzh.zelyon.lib.extension.colorResToColorInt
-import bzh.zelyon.lib.extension.dpToPx
-import bzh.zelyon.lib.extension.getResIdFromAndroidAttr
+import bzh.zelyon.lib.extension.*
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -138,7 +136,7 @@ class CollectionsView @JvmOverloads constructor(context: Context, attrs: Attribu
         }
 
     @ColorInt
-    var thumbEnableColor = context.colorResToColorInt(context.getResIdFromAndroidAttr(android.R.attr.colorAccent))
+    var thumbEnableColor = context.getColorIntFromAndroidAttr(if (isOreo()) android.R.attr.colorSecondary else android.R.attr.colorAccent)
     @ColorInt
     var thumbDisableColor = context.colorResToColorInt(android.R.color.darker_gray)
     @ColorInt

@@ -75,6 +75,8 @@ fun AbsActivity.openGallery(multiple: Boolean = false) {
     }
 }
 
+fun AbsActivity.getStatusBarHeight() = resources.getDimensionPixelSize(resources.getIdentifier("status_bar_height", "dimen", "android"))
+
 fun AbsActivity.setBoolean(key: String, value: Boolean) = getPreferences(Context.MODE_PRIVATE).edit().putBoolean(key, value).apply()
 
 fun AbsActivity.setString(key: String, value: String) = getPreferences(Context.MODE_PRIVATE).edit().putString(key, value).apply()

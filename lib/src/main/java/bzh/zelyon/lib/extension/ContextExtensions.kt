@@ -19,10 +19,12 @@ import android.util.Patterns
 import android.util.TypedValue
 import android.webkit.MimeTypeMap
 import android.webkit.URLUtil
+import androidx.annotation.AttrRes
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import com.google.android.material.color.MaterialColors
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -57,9 +59,11 @@ fun Context.colorResToColorInt(@ColorRes colorRes: Int, alpha: Float? = null): I
     return result
 }
 
-fun Context.getResIdFromAndroidAttr(androidId: Int): Int {
+fun Context.getColorIntFromAndroidAttr(@AttrRes colorAttributeResId: Int) = MaterialColors.getColor(this, colorAttributeResId, null)
+
+fun Context.getResIdFromAndroidAttr(@AttrRes resId: Int): Int {
     val typedValue = TypedValue()
-    theme.resolveAttribute(androidId, typedValue, true)
+    theme.resolveAttribute(resId, typedValue, true)
     return typedValue.resourceId
 }
 
